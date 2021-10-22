@@ -111,14 +111,14 @@ function download_data_range
                     fileCount=$(find zipped/ -maxdepth 1 -regex '${CAMERA}_$YEAR$MONTH${DAY}_.*.zip' | wc -l)
                     newRepoSize=$(du -h $ARCHIVE_ZIPPED | cut -f1)
 
-                    if [[ $fileCount > 4000 ]] # The number of samples each day is inconsistent
+                    if [ $fileCount -ge 1800 ] # The number of samples each day is inconsistent (6int*60min*5hours=1800)
                     then
-                        SLACK_MESSAGE="OK :: $(date -u) :: $CAMERA SkyCam granule for $YEAR/$MONTH/$DAY downloaded successfully ($fileS files; $newRepoSize)"
-                    elif [[ $fileCount == 0 ]]
+                        SLACK_MESSAGE="OK :: $(date -u) :: $CAMERA SkyCam granule for $YEAR/$MONTH/$DAY downloaded successfully ($fileCount files; $newRepoSize)"
+                    elif [ $fileCount == 0 ]
                     then
-                        SLACK_MESSAGE="FAILED :: $(date -u) :: $CAMERA SkyCam granule for $YEAR/$MONTH/$DAY is missing ($fileS files; $newRepoSize)"
+                        SLACK_MESSAGE="FAILED :: $(date -u) :: $CAMERA SkyCam granule for $YEAR/$MONTH/$DAY is missing ($fileCount files; $newRepoSize)"
                     else
-                        SLACK_MESSAGE="FAILED :: $(date -u) :: $CAMERA SkyCam granule for $YEAR/$MONTH/$DAY is incomplete ($fileS files; $newRepoSize)"
+                        SLACK_MESSAGE="FAILED :: $(date -u) :: $CAMERA SkyCam granule for $YEAR/$MONTH/$DAY is incomplete ($fileCount files; $newRepoSize)"
                     fi
                     echo $SLACK_MESSAGE
 
