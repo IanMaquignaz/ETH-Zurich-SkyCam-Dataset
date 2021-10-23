@@ -108,7 +108,7 @@ function download_data_range
                 do 
                     CAMERA=${CAMERAS[$CAMERA_ID]}
 
-                    fileCount=$(find zipped/ -maxdepth 1 -regex '${CAMERA}_$YEAR$MONTH${DAY}_.*.zip' | wc -l)
+                    fileCount=$(ls zipped/${CAMERA}_$YEAR$MONTH${DAY}_*.zip | wc -l)
                     newRepoSize=$(du -h $ARCHIVE_ZIPPED | cut -f1)
 
                     if [ $fileCount -ge 1800 ] # The number of samples each day is inconsistent (6int*60min*5hours=1800)
