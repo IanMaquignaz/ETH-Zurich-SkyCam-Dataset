@@ -101,24 +101,30 @@ function download_data_range
             d=$(date -d "$d + 10 seconds")
 
             # Check for completeness
-            if [[ $(date -I -d "$d") -ne $(date -I -d "$d_last") ]]
+            if [[ "$(date -I -d "$d")" > "$(date -I -d "$d_last")" ]]
             then
                 # For each camera
                 for CAMERA_ID in ${!CAMERAS[@]}
                 do 
                     CAMERA=${CAMERAS[$CAMERA_ID]}
 
-                    fileCount=$(ls zipped/${CAMERA}_$YEAR$MONTH${DAY}_*.zip | wc -l)
-                    newRepoSize=$(du -h $ARCHIVE_ZIPPED | cut -f1)
+                    newFilesCount=$(find $ARCHIVE_ZIPPED/ -type f -name "${CAMERA}_$YEAR$MONTH${DAY}_*.zip" | wc -l)
+                    newFilesSize=$(du -hc --files0-from=<(find $ARCHIVE_ZIPPED/ -name "${CAMERA}_$YEAR$MONTH${DAY}_*.zip" -print0) | tail -n1 | cut -f1)
+                    
+                    cameraFilesCount=$(find $ARCHIVE_ZIPPED/ -type f -name "${CAMERA}_*.zip" | wc -l)
+                    cameraFilesSize=$(du -hc --files0-from=<(find $ARCHIVE_ZIPPED/ -name "${CAMERA}_*zip" -print0) | tail -n1 | cut -f1)
 
-                    if [ $fileCount -ge 1800 ] # The number of samples each day is inconsistent (6int*60min*5hours=1800)
+                    allFilesCount=$(find $ARCHIVE_ZIPPED/ -type f -name "*.zip" | wc -l)
+                    allFilesSize=$(du -hc --files0-from=<(find $ARCHIVE_ZIPPED/ -name "*zip" -print0) | tail -n1 | cut -f1)
+
+                    if [ $newFilesCount -ge 1800 ] # The number of samples each day is inconsistent (6int*60min*5hours=1800)
                     then
-                        SLACK_MESSAGE="OK :: $(date -u) :: $CAMERA SkyCam granule for $YEAR/$MONTH/$DAY downloaded successfully ($fileCount files; $newRepoSize)"
-                    elif [ $fileCount == 0 ]
+                        SLACK_MESSAGE="OK :: $(date -u) :: $CAMERA SkyCam granule for $YEAR/$MONTH/$DAY downloaded successfully [$newFilesCount files($newFilesSize) of $cameraFilesCount($cameraFilesSize); Full db $allFilesCount files($allFilesSize)]"
+                    elif [ $newFilesCount == 0 ]
                     then
-                        SLACK_MESSAGE="FAILED :: $(date -u) :: $CAMERA SkyCam granule for $YEAR/$MONTH/$DAY is missing ($fileCount files; $newRepoSize)"
+                        SLACK_MESSAGE="FAILED :: $(date -u) :: $CAMERA SkyCam granule for $YEAR/$MONTH/$DAY is missing [$newFilesCount files($newFilesSize) of $cameraFilesCount($cameraFilesSize); Full db $allFilesCount files($allFilesSize)]"
                     else
-                        SLACK_MESSAGE="FAILED :: $(date -u) :: $CAMERA SkyCam granule for $YEAR/$MONTH/$DAY is incomplete ($fileCount files; $newRepoSize)"
+                        SLACK_MESSAGE="FAILED :: $(date -u) :: $CAMERA SkyCam granule for $YEAR/$MONTH/$DAY is incomplete [$newFilesCount files($newFilesSize) of $cameraFilesCount($cameraFilesSize); Full db $allFilesCount files($allFilesSize)]"
                     fi
                     echo $SLACK_MESSAGE
 
