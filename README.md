@@ -11,18 +11,18 @@ Bash usage examples [^1]:
 
 ```Bash
 # Build the dataset (loads the bash functions, then executes download_data_build)
-./data_asi16_downloader.bash && download_data_build
+. ./data_asi16_downloader.bash && download_data_build
 ```
 
 ```Bash
 # Continue building on the dataset (loads the bash functions, then executes download_data_lastX)
-./data_asi16_downloader.bash && download_data_lastX
+. ./data_asi16_downloader.bash && download_data_lastX
 ```
 
 Note, you can alter script functionality by modifying script variables from the command line. For example:
 ```Bash
 # Loads the bash functions
-./data_asi16_downloader.bash 
+. ./data_asi16_downloader.bash 
 
 # Alter script variables
 RANGE_DATE_START='2018-01-01'
